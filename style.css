@@ -1,0 +1,83 @@
+* {
+    font-family: JetBrainsMono Nerd;
+    font-size: 44px;
+    transition-property: background-color;
+    transition-duration: 1.0s;
+}
+
+window {
+    background-color: #490031;
+    border-radius: 10px;
+}
+
+button {
+    background-color: #490031;
+    border-style: solid;
+    border-color: #EA3B00;
+    border-width: 20px;
+    border-radius: 300px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 15%;
+    margin: 30px;
+}
+
+button:active,
+button:hover {
+    background-color: #EA3B00;
+}
+
+#lock {
+	color: #EA3B00;
+}
+
+#lock:hover {
+    color: #490031;
+    border-color: #490031;
+}
+
+#logout {
+	color: #EA3B00;
+}
+
+#logout:hover {
+    color: #490031;
+    border-color: #490031;
+
+}
+
+#suspend {
+	color: #EA3B00;
+}
+
+#suspend:hover {
+    color: #490031;
+    border-color: #490031;
+}
+
+#shutdown {
+	color: #EA3B00;}
+
+#shutdown:hover {
+    color: #490031;
+    border-color: #490031;
+
+}
+
+#reboot {
+	color: #EA3B00;
+}
+
+#reboot:hover {
+    color: #490031;
+    border-color: #490031;
+}
+
+#exit {
+	color: #EA3B00;
+}
+
+#exit:hover {
+    color: #490031;
+    border-color: #490031;
+}
