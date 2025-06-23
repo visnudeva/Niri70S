@@ -12,12 +12,12 @@ The keyboard layout is US but it can also be changed in the Niri config file.
 The main keybindings are:
      
     - Mod+T kitty (terminal)
-    - Mod+I geany (IDE)
-    - Mod+M fuzzel (launcher)
-    - Mod+W firefox (web browser)
+    - Mod+E geany (IDE)
+    - Mod+SPACE tofi (launcher)
+    - Mod+B firefox (browser)
     - Mod+F thunar (file browser)
     - Mod+L hyprlock (lock)
-    - Mod+E Exit (logout)
+    - Mod+ESC wlogout (logout)
 
 
 **Here are some screenshots**
