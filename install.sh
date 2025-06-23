@@ -38,6 +38,12 @@ if [[ -d "$CLONE_DIR" ]]; then
     fi
 fi
 
+# --- Ensure we are not in the deleted directory ---
+if [[ "$PWD" == "$CLONE_DIR"* ]]; then
+    echo "[!] You are currently in the directory you're about to delete. Moving to home directory."
+    cd ~
+fi
+
 # --- Clone the repository ---
 echo "[+] Cloning your GitHub repo..."
 git clone "$REPO_URL" "$CLONE_DIR"
