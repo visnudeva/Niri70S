@@ -8,8 +8,8 @@ CLONE_DIR="$HOME/HyprNiri"
 CONFIG_SOURCE="$CLONE_DIR/.config"
 CONFIG_TARGET="$HOME/.config"
 WALLPAPER_NAME="LavaLampOne.png"
-WALLPAPER_SOURCE="$CLONE_DIR/$WALLPAPER_NAME"
-WALLPAPER_DEST="/usr/share/backgrounds/$WALLPAPER_NAME"
+WALLPAPER_SOURCE="$CLONE_DIR/backgrounds/$WALLPAPER_NAME"
+WALLPAPER_DEST="/.config/backgrounds/$WALLPAPER_NAME"
 TMP_DIR=$(mktemp -d)
 
 # Packages to install via pacman
