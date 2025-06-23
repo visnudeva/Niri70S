@@ -11,7 +11,7 @@ NIRI_DEST="$HOME/niri"
 FUZZEL_DEST="$HOME/fuzzel"
 WALLPAPER_SOURCE="$NIRI_DEST/dotdark.png"
 WALLPAPER_DEST="/usr/share/wallpapers"
-PACKAGES=(yay niri kitty waybar mako tofi fuzzel swaybg hyprland hyprpaper hyprlock hypridle hyprpicker swww wlogout thunar thunar-volman gvfs geany blueman nwg-look firefox qbittorrent mpv gimp stremio telegram-desktop yay steam bottles)
+PACKAGES=(yay niri kitty waybar mako tofi swaybg hyprland hyprpaper hyprlock hypridle hyprpicker swww wlogout thunar thunar-volman gvfs geany blueman nwg-look firefox qbittorrent mpv gimp stremio telegram-desktop yay steam bottles)
 AUR_PACKAGES=(ttf-nerd-fonts-symbols popcorntime ivpn)
 
 # --- Install necessary packages ---
