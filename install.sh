@@ -8,7 +8,7 @@ CLONE_DIR="$HOME/HyprNiri"
 CONFIG_SOURCE="$CLONE_DIR/.config"
 CONFIG_TARGET="$HOME/.config"
 WALLPAPER_NAME="LavaLampOne.png"
-WALLPAPER_SOURCE="$CONFIG_SOURCE/hypr/$WALLPAPER_NAME"
+WALLPAPER_SOURCE="$CLONE_DIR/.config/$WALLPAPER_NAME"
 WALLPAPER_DEST="/usr/share/backgrounds/$WALLPAPER_NAME"
 TMP_DIR=$(mktemp -d)
 
@@ -98,16 +98,5 @@ if [[ -f /etc/lightdm/slick-greeter.conf ]]; then
     echo "[✔] LightDM background set."
 fi
 
-# --- Install Catppuccin Mocha GTK theme only (no icons) ---
-echo "[+] Installing Catppuccin Mocha GTK theme..."
-git clone --depth=1 https://github.com/catppuccin/gtk.git "$TMP_DIR/gtk"
-mkdir -p "$HOME/.themes"
-cp -r "$TMP_DIR/gtk/src/mocha" "$HOME/.themes/"
-
-# Set dark theme using gsettings
-echo "[+] Applying Catppuccin Mocha GTK theme..."
-gsettings set org.gnome.desktop.interface gtk-theme "mocha"
-gsettings set org.gnome.desktop.wm.preferences theme "mocha"
-
 # --- Final message ---
-echo -e "\n All done! Hyprland + Niri setup is complete with fresh dotfiles, a beautiful wallpaper, and Catppuccin Mocha vibes. Enjoy your sleek system! \n"
+echo -e "\n All done! Hyprland + Niri setup is complete with fresh dotfiles and a beautiful wallpaper. Enjoy your sleek system! \n"
