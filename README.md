@@ -14,7 +14,7 @@ The keyboard layout is US but it can also be changed in the Niri config file.
 The main keybindings are:
      
     - Mod+T kitty (terminal)
-    - Mod+E geany (IDE)
+    - Mod+I geany (IDE)
     - Mod+SPACE tofi (launcher)
     - Mod+B firefox (browser)
     - Mod+F thunar (file browser)
