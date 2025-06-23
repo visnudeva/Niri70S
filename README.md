@@ -1,4 +1,4 @@
-**BETA, many things to do in the script**
+**BETA**
 
 **A simple orange and purple Lava lamp 70's themed hyprland and Niri dotfiles setup for Arch linux based distros.**
 
