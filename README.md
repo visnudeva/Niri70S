@@ -1,4 +1,4 @@
-**Here is my simple hyprland and Niri dotfiles setup for Arch linux based distros.**
+**A simple orange and purple Lava lamp 70's themed hyprland and Niri dotfiles setup for Arch linux based distros.**
 
 Here is my install script.
 
