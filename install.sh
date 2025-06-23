@@ -24,7 +24,7 @@ PACKAGES=(
 AUR_PACKAGES=(tofi ttf-nerd-fonts-symbols)
 
 # --- Clone the repository ---
-if [[ -d "$CLONE_DIR" && -n "$(ls -A "$CLONE_DIR")" ]]; then
+if [[ -d "$CLONE_DIR" && -n "$(ls -A \"$CLONE_DIR\")" ]]; then
     echo "[!] Directory $CLONE_DIR already exists and is not empty. Skipping clone."
 else
     echo "[+] Cloning your GitHub repo..."
@@ -81,22 +81,15 @@ if [[ -f /etc/lightdm/slick-greeter.conf ]]; then
     echo "[✔] LightDM background set."
 fi
 
-# --- Install Catppuccin Mocha GTK and icon theme ---
-echo "[+] Installing Catppuccin Mocha GTK and icon themes..."
-
-# Clone themes
+# --- Install Catppuccin Mocha GTK theme only (no icons) ---
+echo "[+] Installing Catppuccin Mocha GTK theme..."
 git clone --depth=1 https://github.com/catppuccin/gtk.git "$TMP_DIR/gtk"
-git clone --depth=1 https://github.com/catppuccin/icons.git "$TMP_DIR/icons"
-
-# Install to user theme/icon directories
-mkdir -p "$HOME/.themes" "$HOME/.icons"
+mkdir -p "$HOME/.themes"
 cp -r "$TMP_DIR/gtk/src/mocha" "$HOME/.themes/"
-cp -r "$TMP_DIR/icons/Catppuccin-Mocha" "$HOME/.icons/"
 
 # Set dark theme using gsettings
-echo "[+] Applying Catppuccin Mocha themes..."
+echo "[+] Applying Catppuccin Mocha GTK theme..."
 gsettings set org.gnome.desktop.interface gtk-theme "mocha"
-gsettings set org.gnome.desktop.interface icon-theme "Catppuccin-Mocha"
 gsettings set org.gnome.desktop.wm.preferences theme "mocha"
 
 # --- Final message ---
