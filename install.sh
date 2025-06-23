@@ -23,13 +23,24 @@ PACKAGES=(
 # AUR packages (requires yay)
 AUR_PACKAGES=(tofi ttf-nerd-fonts-symbols)
 
-# --- Clone the repository ---
-if [[ -d "$CLONE_DIR" && -n "$(ls -A \"$CLONE_DIR\")" ]]; then
-    echo "[!] Directory $CLONE_DIR already exists and is not empty. Skipping clone."
-else
-    echo "[+] Cloning your GitHub repo..."
-    git clone "$REPO_URL" "$CLONE_DIR"
+# --- Remove leftover clone if it's corrupted or broken ---
+if [[ -d "$CLONE_DIR" && ! -d "$CLONE_DIR/.git" ]]; then
+    echo "[!] $CLONE_DIR exists but is not a valid git repo. Removing it."
+    rm -rf "$CLONE_DIR"
 fi
+
+# --- Force remove if user confirms ---
+if [[ -d "$CLONE_DIR" ]]; then
+    read -p "[?] $CLONE_DIR already exists. Remove and reclone it? [y/N]: " REPLY
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        rm -rf "$CLONE_DIR"
+        echo "[+] Removed existing $CLONE_DIR."
+    fi
+fi
+
+# --- Clone the repository ---
+echo "[+] Cloning your GitHub repo..."
+git clone "$REPO_URL" "$CLONE_DIR"
 
 # --- Install necessary packages ---
 echo "[+] Installing packages with pacman..."
