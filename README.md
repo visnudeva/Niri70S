@@ -22,6 +22,7 @@ The main keybindings are:
 
 **Here are some screenshots**
 
-![screenshot1](https://github.com/visnudeva/Niri-dot-files/blob/main/screenshot.png)
-![screenshot1](https://github.com/visnudeva/Niri-dot-files/blob/main/screenshot2.png)
+![screenshot1](https://github.com/visnudeva/HyprNiri/blob/main/SS1.png?raw=true)
+![screenshot1](https://github.com/visnudeva/HyprNiri/blob/main/SS2.png?raw=true)
+![screenshot1](https://github.com/visnudeva/HyprNiri/blob/main/SS3.png?raw=true)
 
