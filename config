@@ -1,0 +1,12 @@
+max-visible=10
+layer=top
+font=JetBrainsMono Nerd Font 12
+background-color=#49003195
+text-color=#EA3B00
+border-color=#EA3B0095
+border-radius=7
+max-icon-size=48
+default-timeout=3000
+anchor=top-center
+margin=20
+
