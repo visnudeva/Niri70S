@@ -2,8 +2,8 @@
 
 Here is my install script.
 
-<pre>git clone --depth=1 https://github.com/visnudeva/Niri-dot-files.git ~/Niri-dot-files
-cd ~/Niri-dot-files
+<pre>git clone --depth=1 https://github.com/visnudeva/HyprNiri.git ~/HyprNiri
+cd ~/HyprNiri
 chmod +x install.sh
 ./install.sh</pre>
 
