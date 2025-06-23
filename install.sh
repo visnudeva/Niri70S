@@ -15,13 +15,13 @@ TMP_DIR=$(mktemp -d)
 # Packages to install via pacman
 PACKAGES=(
     hyprland niri kitty waybar dunst swaybg hyprlock hypridle thunar 
-    thunar-volman gvfs geany blueman nwg-look tofi polkit-gnome 
+    thunar-volman gvfs geany blueman nwg-look polkit-gnome 
     pavucontrol brightnessctl wl-clipboard grim slurp qt5-wayland
     qt6-wayland xdg-desktop-portal-hyprland
 )
 
 # AUR packages (requires yay)
-AUR_PACKAGES=(ttf-nerd-fonts-symbols)
+AUR_PACKAGES=(tofi ttf-nerd-fonts-symbols)
 
 # --- Clone the repository ---
 if [[ -d "$CLONE_DIR" && -n "$(ls -A "$CLONE_DIR")" ]]; then
