@@ -24,8 +24,12 @@ PACKAGES=(
 AUR_PACKAGES=(ttf-nerd-fonts-symbols)
 
 # --- Clone the repository ---
-echo "[+] Cloning your GitHub repo..."
-git clone "$REPO_URL" "$CLONE_DIR"
+if [[ -d "$CLONE_DIR" && -n "$(ls -A "$CLONE_DIR")" ]]; then
+    echo "[!] Directory $CLONE_DIR already exists and is not empty. Skipping clone."
+else
+    echo "[+] Cloning your GitHub repo..."
+    git clone "$REPO_URL" "$CLONE_DIR"
+fi
 
 # --- Install necessary packages ---
 echo "[+] Installing packages with pacman..."
