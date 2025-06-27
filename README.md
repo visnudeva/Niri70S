@@ -19,7 +19,7 @@ The main keybindings are:
     - Mod+B firefox (browser)
     - Mod+F thunar (file browser)
     - Mod+L hyprlock (lock)
-    - Mod+ESC wlogout (logout)
+    - Mod+E tofi (logout)
 
 
 **Here are some screenshots**
