@@ -14,10 +14,15 @@ TMP_DIR=$(mktemp -d)
 
 # Packages to install via pacman
 PACKAGES=(
-    hyprland niri kitty waybar mako swaybg swww hyprlock hypridle hyprpicker thunar 
-    thunar-volman gvfs geany blueman nwg-look polkit-gnome 
-    pavucontrol brightnessctl wl-clipboard grim slurp qt5-wayland
-    qt6-wayland xdg-desktop-portal-hyprland yay
+    hyprland hyprlock hypridle hyprpicker
+    niri kitty waybar mako swaybg swww 
+    thunar thunar-volman geany
+    blueman bluez bluez-utils nwg-look polkit-gnome 
+    kvantum kvantum-qt5 qt5-wayland qt6-wayland qt5ct qt6ct
+    brightnessctl wl-clipboard grim slurp gvfs 
+    xdg-desktop-portal-hyprland yay satty udiskie sddm 
+    pipewire pipewire-alsa pipewire-audio pipewire-jack pipewire-pulse
+    wireplumber pamixer pavucontrol
 )
 
 # AUR packages (requires yay)
