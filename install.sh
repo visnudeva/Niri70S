@@ -14,7 +14,7 @@ TMP_DIR=$(mktemp -d)
 
 # Packages to install via pacman
 PACKAGES=(
-    hyprland niri kitty waybar mako swaybg swww hyprlock hypridle hyprpicker wlogout thunar 
+    hyprland niri kitty waybar mako swaybg swww hyprlock hypridle hyprpicker thunar 
     thunar-volman gvfs geany blueman nwg-look polkit-gnome 
     pavucontrol brightnessctl wl-clipboard grim slurp qt5-wayland
     qt6-wayland xdg-desktop-portal-hyprland yay
