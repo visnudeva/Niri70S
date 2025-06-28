@@ -17,6 +17,7 @@ PACKAGES=(
     hyprland hyprlock hypridle hyprpicker
     niri kitty waybar mako swaybg swww 
     thunar thunar-volman geany
+    networkmanager network-manager-applet nm-connection-editor
     blueman bluez bluez-utils nwg-look polkit-gnome 
     kvantum kvantum-qt5 qt5-wayland qt6-wayland qt5ct qt6ct
     brightnessctl wl-clipboard grim slurp gvfs 
