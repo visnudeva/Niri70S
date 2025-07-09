@@ -2,8 +2,8 @@
 
 Here is my install script.
 
-<pre>git clone --depth=1 https://github.com/visnudeva/HyprNiri.git ~/HyprNiri
-cd ~/HyprNiri
+<pre>git clone --depth=1 https://github.com/visnudeva/Niri70S.git ~/Niri70S
+cd ~/Niri70S
 chmod +x install.sh
 ./install.sh</pre>
 
@@ -20,6 +20,6 @@ The main keybindings are:
 
 **Here are some screenshots**
 
-![screenshot1](https://github.com/visnudeva/HyprNiri/blob/main/Screenshot1.png?raw=true)
-![screenshot2](https://github.com/visnudeva/HyprNiri/blob/main/Screenshot2.png?raw=true)
+![screenshot1](https://github.com/visnudeva/Niri70S/blob/main/Screenshot1.png?raw=true)
+![screenshot2](https://github.com/visnudeva/Niri70S/blob/main/Screenshot2.png?raw=true)
 
