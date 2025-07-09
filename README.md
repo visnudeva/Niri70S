@@ -13,8 +13,8 @@ The main keybindings are:
     - Mod+I geany (IDE)
     - Mod+SPACE tofi (launcher)
     - Mod+B firefox (browser)
-    - Mod+F thunar (file browser)
-    - Mod+L hyprlock (lock)
+    - Mod+M thunar (file manager)
+    - Mod+L swaylock (lock)
     - Mod+E tofi (logout)
 
 
