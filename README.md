@@ -20,7 +20,6 @@ The main keybindings are:
 
 **Here are some screenshots**
 
-![screenshot1](https://github.com/visnudeva/HyprNiri/blob/main/SS1.png?raw=true)
-![screenshot1](https://github.com/visnudeva/HyprNiri/blob/main/SS2.png?raw=true)
-![screenshot1](https://github.com/visnudeva/HyprNiri/blob/main/SS3.png?raw=true)
+![screenshot1](https://github.com/visnudeva/HyprNiri/blob/main/Screenshot1.png?raw=true)
+![screenshot2](https://github.com/visnudeva/HyprNiri/blob/main/Screenshot2.png?raw=true)
 
