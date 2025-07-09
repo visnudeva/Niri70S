@@ -4,7 +4,7 @@ set -e  # Exit on error
 
 # --- Configuration ---
 REPO_URL="https://github.com/visnudeva/HyprNiri"
-CLONE_DIR="$HOME/HyprNiri"
+CLONE_DIR="$HOME/Niri70S"
 CONFIG_SOURCE="$CLONE_DIR/.config"
 CONFIG_TARGET="$HOME/.config"
 WALLPAPER_NAME="LavaLampOne.png"
@@ -15,7 +15,7 @@ TMP_DIR=$(mktemp -d)
 # Packages to install via pacman
 PACKAGES=(
     niri kitty waybar mako swaybg swayidle swaylock-effects swww 
-    thunar thunar-volman geany
+    thunar thunar-volman geany sddm
     networkmanager network-manager-applet nm-connection-editor
     blueman bluez bluez-utils nwg-look polkit-gnome 
     kvantum kvantum-qt5 qt5-wayland qt6-wayland qt5ct qt6ct
@@ -104,4 +104,4 @@ if [[ -f /etc/lightdm/slick-greeter.conf ]]; then
 fi
 
 # --- Final message ---
-echo -e "\n All done! Hyprland + Niri setup is complete with fresh dotfiles and a beautiful wallpaper. Enjoy your sleek system! \n"
+echo -e "\n All done! Niri70S setup is complete with fresh dotfiles and a beautiful wallpaper. Enjoy your sleek system! \n"
