@@ -1,6 +1,4 @@
-**BETA, script to be tested**
-
-**A simple orange and purple Lava lamp 70's themed hyprland and Niri dotfiles setup for Arch linux based distros.**
+**A simple orange and purple Lava lamp 70's themed Niri dotfiles setup for Arch linux based distros.**
 
 Here is my install script.
 
@@ -8,8 +6,6 @@ Here is my install script.
 cd ~/HyprNiri
 chmod +x install.sh
 ./install.sh</pre>
-
-The keyboard layout is US but it can also be changed in the Niri config file.
 
 The main keybindings are:
      
