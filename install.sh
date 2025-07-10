@@ -15,7 +15,7 @@ TMP_DIR=$(mktemp -d)
 # Packages to install via pacman
 PACKAGES=(
     niri kitty waybar mako swaybg swayidle swaylock-effects swww 
-    thunar thunar-volman geany sddm
+    thunar thunar-volman geany sddm acpi libnotify
     networkmanager network-manager-applet nm-connection-editor
     blueman bluez bluez-utils nwg-look polkit-gnome 
     kvantum kvantum-qt5 qt5-wayland qt6-wayland qt5ct qt6ct
@@ -27,6 +27,10 @@ PACKAGES=(
 
 # AUR packages (requires yay)
 AUR_PACKAGES=(tofi ttf-nerd-fonts-symbols)
+
+# Enable the user service
+systemctl --user daemon-reexec
+systemctl --user enable --now battery_notify.timer
 
 # --- Remove leftover clone if it's corrupted or broken ---
 if [[ -d "$CLONE_DIR" && ! -d "$CLONE_DIR/.git" ]]; then
