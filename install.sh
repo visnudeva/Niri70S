@@ -3,7 +3,7 @@
 set -e  # Exit on error
 
 # --- Configuration ---
-REPO_URL="https://github.com/visnudeva/HyprNiri"
+REPO_URL="https://github.com/visnudeva/Niri70S"
 CLONE_DIR="$HOME/Niri70S"
 CONFIG_SOURCE="$CLONE_DIR/.config"
 CONFIG_TARGET="$HOME/.config"
