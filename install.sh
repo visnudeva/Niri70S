@@ -9,7 +9,7 @@ CONFIG_SOURCE="$CLONE_DIR/.config"
 CONFIG_TARGET="$HOME/.config"
 WALLPAPER_NAME="LavaLampOne.png"
 WALLPAPER_SOURCE="$CLONE_DIR/backgrounds/$WALLPAPER_NAME"
-WALLPAPER_DEST="/.config/backgrounds/$WALLPAPER_NAME"
+WALLPAPER_DEST="$HOME/.config/backgrounds/$WALLPAPER_NAME"
 TMP_DIR=$(mktemp -d)
 
 # Packages to install via pacman
@@ -28,8 +28,11 @@ PACKAGES=(
 # AUR packages (requires yay)
 AUR_PACKAGES=(tofi ttf-nerd-fonts-symbols)
 
+# Enable lingering for persistent user services
+loginctl enable-linger "$USER"
+
 # Enable the user service
-systemctl --user daemon-reexec
+systemctl --user daemon-reload
 systemctl --user enable --now battery_notify.timer
 
 # --- Remove leftover clone if it's corrupted or broken ---
@@ -73,13 +76,14 @@ fi
 echo "[+] Copying dotfiles to ~/.config..."
 rsync -avh --exclude='.git' "$CONFIG_SOURCE/" "$CONFIG_TARGET/"
 
-# make the script executable
+# --- Ensure battery notify script is executable ---
 chmod +x "$HOME/.local/bin/battery_notify.sh"
 
-# --- Copy wallpaper to system-wide location ---
+# --- Copy wallpaper to user config location ---
+mkdir -p "$HOME/.config/backgrounds"
 if [[ -f "$WALLPAPER_SOURCE" ]]; then
     echo "[+] Copying wallpaper to $WALLPAPER_DEST..."
-    sudo cp "$WALLPAPER_SOURCE" "$WALLPAPER_DEST"
+    cp "$WALLPAPER_SOURCE" "$WALLPAPER_DEST"
     echo "[✔] Wallpaper installed."
 else
     echo "[!] Wallpaper not found at $WALLPAPER_SOURCE. Skipping wallpaper setup."
