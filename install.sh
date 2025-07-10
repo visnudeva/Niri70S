@@ -73,6 +73,9 @@ fi
 echo "[+] Copying dotfiles to ~/.config..."
 rsync -avh --exclude='.git' "$CONFIG_SOURCE/" "$CONFIG_TARGET/"
 
+# make the script executable
+chmod +x "$HOME/.local/bin/battery_notify.sh"
+
 # --- Copy wallpaper to system-wide location ---
 if [[ -f "$WALLPAPER_SOURCE" ]]; then
     echo "[+] Copying wallpaper to $WALLPAPER_DEST..."
