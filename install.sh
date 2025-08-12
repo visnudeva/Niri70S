@@ -76,9 +76,6 @@ fi
 echo "[+] Copying dotfiles to ~/.config..."
 rsync -avh --exclude='.git' "$CONFIG_SOURCE/" "$CONFIG_TARGET/"
 
-# --- Ensure battery notify script is executable ---
-chmod +x "$HOME/.local/bin/battery_notify.sh"
-
 # --- Copy wallpaper to user config location ---
 mkdir -p "$HOME/.config/backgrounds"
 if [[ -f "$WALLPAPER_SOURCE" ]]; then
