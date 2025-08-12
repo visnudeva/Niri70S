@@ -15,7 +15,7 @@ The main keybindings are:
     - Mod+B firefox (browser)
     - Mod+M thunar (file manager)
     - Mod+L swaylock (lock)
-    - Mod+E tofi (logout)
+    - Mod+E fuzzel (logout)
     - Mod+W waybar ( dhow/hide)
 
 
