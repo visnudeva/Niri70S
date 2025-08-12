@@ -1,17 +1,39 @@
 #!/bin/bash
 
-set -e  # Exit on error
+set -e  # Exit on any error
+set -u  # Error on unset variables
+
+# --- Trap for cleanup on errors ---
+cleanup() {
+    echo "[!] Script failed or exited unexpectedly. Performing cleanup."
+    # Add cleanup logic here if needed, e.g., removing temp files
+}
+trap cleanup EXIT
+
+# --- Parse options ---
+FORCE=0
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --force)
+            FORCE=1
+            shift
+            ;;
+        *)
+            echo "[!] Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
 
 # --- Configuration ---
 REPO_URL="https://github.com/visnudeva/Niri70S"
-CLONE_DIR="$HOME/Niri70S"
-CONFIG_SOURCE="$CLONE_DIR/.config"
-CONFIG_TARGET="$HOME/.config"
+CLONE_DIR="${HOME}/Niri70S"
+CONFIG_SOURCE="${CLONE_DIR}/.config"
+CONFIG_TARGET="${HOME}/.config"
 WALLPAPER_NAME="LavaLampOne.png"
-WALLPAPER_SOURCE="$CLONE_DIR/backgrounds/$WALLPAPER_NAME"
-WALLPAPER_DEST="$HOME/.config/backgrounds/$WALLPAPER_NAME"
+WALLPAPER_SOURCE="${CLONE_DIR}/backgrounds/${WALLPAPER_NAME}"
+WALLPAPER_DEST="${HOME}/.config/backgrounds/${WALLPAPER_NAME}"
 
-# Packages to install via pacman
 PACKAGES=(
     niri kitty waybar mako swaybg swayidle swaylock-effects swww 
     thunar thunar-volman geany sddm acpi libnotify
@@ -24,13 +46,24 @@ PACKAGES=(
     wireplumber pamixer pavucontrol
 )
 
-# AUR packages (requires yay)
 AUR_PACKAGES=(ttf-nerd-fonts-symbols)
 
-# Enable lingering for persistent user services
-loginctl enable-linger "$USER"
+# --- Helper: Check for sudo or root ---
+if [[ $(id -u) -ne 0 ]]; then
+    SUDO="sudo"
+else
+    SUDO=""
+fi
 
-# Enable the user service
+# --- Enable lingering for persistent user services ---
+if ${SUDO} loginctl show-user "$USER" --property=Linger &>/dev/null; then
+    echo "[+] Enabling lingering for $USER..."
+    ${SUDO} loginctl enable-linger "$USER"
+else
+    echo "[!] loginctl not available or insufficient permissions. Skipping lingering enable."
+fi
+
+# --- Enable the user service ---
 systemctl --user daemon-reload
 
 # --- Remove leftover clone if it's corrupted or broken ---
@@ -39,12 +72,17 @@ if [[ -d "$CLONE_DIR" && ! -d "$CLONE_DIR/.git" ]]; then
     rm -rf "$CLONE_DIR"
 fi
 
-# --- Force remove if user confirms ---
+# --- Force remove if user confirms or --force is supplied ---
 if [[ -d "$CLONE_DIR" ]]; then
-    read -p "[?] $CLONE_DIR already exists. Remove and reclone it? [y/N]: " REPLY
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
+    if [[ $FORCE -eq 1 ]]; then
         rm -rf "$CLONE_DIR"
-        echo "[+] Removed existing $CLONE_DIR."
+        echo "[+] Removed existing $CLONE_DIR (--force)."
+    else
+        read -p "[?] $CLONE_DIR already exists. Remove and reclone it? [y/N]: " REPLY
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            rm -rf "$CLONE_DIR"
+            echo "[+] Removed existing $CLONE_DIR."
+        fi
     fi
 fi
 
@@ -60,7 +98,7 @@ git clone "$REPO_URL" "$CLONE_DIR"
 
 # --- Install necessary packages ---
 echo "[+] Installing packages with pacman..."
-sudo pacman -S --needed --noconfirm "${PACKAGES[@]}"
+${SUDO} pacman -S --needed --noconfirm "${PACKAGES[@]}"
 
 # --- Install AUR packages if yay is available ---
 if command -v yay &>/dev/null; then
@@ -91,8 +129,8 @@ echo "[+] Setting login manager backgrounds..."
 if command -v sddm &>/dev/null; then
     SDDM_CONF=$(find /usr/share/sddm/themes -name theme.conf 2>/dev/null | head -n 1)
     if [[ -f "$SDDM_CONF" ]]; then
-        sudo sed -i "s|^Background=.*|Background=$WALLPAPER_DEST|" "$SDDM_CONF" || \
-        echo "Background=$WALLPAPER_DEST" | sudo tee -a "$SDDM_CONF"
+        ${SUDO} sed -i "s|^Background=.*|Background=$WALLPAPER_DEST|" "$SDDM_CONF" || \
+        echo "Background=$WALLPAPER_DEST" | ${SUDO} tee -a "$SDDM_CONF"
         echo "[✔] SDDM background set."
     else
         echo "[!] SDDM theme.conf not found."
@@ -102,12 +140,15 @@ fi
 # LightDM (slick-greeter)
 if [[ -f /etc/lightdm/slick-greeter.conf ]]; then
     if grep -q "^background=" /etc/lightdm/slick-greeter.conf; then
-        sudo sed -i "s|^background=.*|background=$WALLPAPER_DEST|" /etc/lightdm/slick-greeter.conf
+        ${SUDO} sed -i "s|^background=.*|background=$WALLPAPER_DEST|" /etc/lightdm/slick-greeter.conf
     else
-        echo "background=$WALLPAPER_DEST" | sudo tee -a /etc/lightdm/slick-greeter.conf
+        echo "background=$WALLPAPER_DEST" | ${SUDO} tee -a /etc/lightdm/slick-greeter.conf
     fi
     echo "[✔] LightDM background set."
 fi
 
 # --- Final message ---
 echo -e "\n All done! Niri70S setup is complete with fresh dotfiles and a beautiful wallpaper. Enjoy your sleek system! \n"
+
+# --- Remove trap on successful exit ---
+trap - EXIT
