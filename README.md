@@ -11,7 +11,7 @@ The main keybindings are:
      
     - Mod+T kitty (terminal)
     - Mod+I geany (IDE)
-    - Mod+SPACE fuzzel (applauncher)
+    - Mod+SPACE fuzzel (app launcher)
     - Mod+B firefox (web browser)
     - Mod+M thunar (file manager)
     - Mod+L swaylock (lock)
