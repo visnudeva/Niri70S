@@ -33,7 +33,6 @@ loginctl enable-linger "$USER"
 
 # Enable the user service
 systemctl --user daemon-reload
-systemctl --user enable --now battery_notify.timer
 
 # --- Remove leftover clone if it's corrupted or broken ---
 if [[ -d "$CLONE_DIR" && ! -d "$CLONE_DIR/.git" ]]; then
