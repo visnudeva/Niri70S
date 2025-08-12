@@ -1,14 +1,29 @@
 #!/bin/bash
 
-set -e  # Exit on any error
-set -u  # Error on unset variables
+set -e
+set -u
 
-# --- Trap for cleanup on errors ---
-cleanup() {
-    echo "[!] Script failed or exited unexpectedly. Performing cleanup."
-    # Add cleanup logic here if needed, e.g., removing temp files
+# --- Color Output ---
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+YELLOW="\033[1;33m"
+BLUE="\033[0;34m"
+NC="\033[0m"
+
+# --- Logging ---
+LOG_FILE="$HOME/niri70s_install_$(date +%Y%m%d_%H%M%S).log"
+log() {
+    echo -e "${YELLOW}$@${NC}" | tee -a "$LOG_FILE"
 }
-trap cleanup EXIT
+log_success() {
+    echo -e "${GREEN}$@${NC}" | tee -a "$LOG_FILE"
+}
+log_error() {
+    echo -e "${RED}$@${NC}" | tee -a "$LOG_FILE"
+}
+log_info() {
+    echo -e "${BLUE}$@${NC}" | tee -a "$LOG_FILE"
+}
 
 # --- Variables ---
 REPO_URL="https://github.com/visnudeva/Niri70S"
@@ -19,6 +34,12 @@ WALLPAPER_NAME="LavaLampOne.png"
 WALLPAPER_SOURCE="${CLONE_DIR}/backgrounds/${WALLPAPER_NAME}"
 WALLPAPER_DEST="${HOME}/.config/backgrounds/${WALLPAPER_NAME}"
 BACKUP_DIR="${HOME}/.config_backup_$(date +%Y%m%d_%H%M%S)"
+DRYRUN=0
+FORCE=0
+UNATTENDED=0
+RESTORE=""
+UNINSTALL=0
+SUDO=""
 
 PACKAGES=(
     niri kitty waybar mako swaybg swayidle swaylock-effects swww 
@@ -32,42 +53,77 @@ PACKAGES=(
     wireplumber pamixer pavucontrol
 )
 AUR_PACKAGES=(ttf-nerd-fonts-symbols)
+REQUIRED_CMDS=(git rsync pacman diff meld)
 
-REQUIRED_CMDS=(git rsync pacman)
+DRYRUN_SUMMARY=()
 
-# --- Option Defaults ---
-FORCE=0
-DRYRUN=0
-UNATTENDED=0
+# --- Trap for cleanup on errors ---
+cleanup() {
+    log_error "[!] Script failed or exited unexpectedly. Performing cleanup."
+    # Add cleanup logic here if needed, e.g., removing temp files
+}
+trap cleanup EXIT
 
 # --- Functions ---
 usage() {
-    echo "Usage: $0 [--force] [--dry-run] [--unattended]"
+    echo "Usage: $0 [--force] [--dry-run] [--unattended] [--restore <backup_dir>] [--uninstall]"
     echo "  --force       Remove existing clone directory without prompt"
     echo "  --dry-run     Only display actions, do not perform them"
     echo "  --unattended  Skip all interactive prompts"
+    echo "  --restore     Restore from backup directory"
+    echo "  --uninstall   Undo all changes made by install.sh"
     exit 1
 }
 
-log() {
-    echo "$@"
+handle_sudo() {
+    if [[ $(id -u) -ne 0 ]]; then
+        SUDO="sudo"
+        if ! command -v sudo &>/dev/null; then
+            log_error "[!] sudo is required but not installed."
+            exit 1
+        fi
+    fi
+}
+
+check_for_update() {
+    if [[ -f "$CLONE_DIR/install.sh" ]]; then
+        log_info "[+] Checking for newer install.sh..."
+        local latest_script
+        latest_script=$(mktemp)
+        curl -sL "$REPO_URL/raw/main/install.sh" -o "$latest_script"
+        if ! diff "$latest_script" "$CLONE_DIR/install.sh" &>/dev/null; then
+            log_info "[!] A newer version of install.sh is available."
+            if (( UNATTENDED )) || (( FORCE )); then
+                cp "$latest_script" "$CLONE_DIR/install.sh"
+                log_success "[+] Updated install.sh to latest."
+            else
+                read -p "[?] Update install.sh to latest? [y/N]: " REPLY
+                if [[ $REPLY =~ ^[Yy]$ ]]; then
+                    cp "$latest_script" "$CLONE_DIR/install.sh"
+                    log_success "[+] Updated install.sh to latest."
+                fi
+            fi
+        else
+            log_info "[+] install.sh is up to date."
+        fi
+        rm "$latest_script"
+    fi
 }
 
 detect_distro() {
-    # Only allow Arch/Manjaro
     if [[ -f /etc/os-release ]]; then
         . /etc/os-release
         case "$ID" in
             arch|manjaro)
-                log "[+] Running on supported distro: $ID"
+                log_info "[+] Running on supported distro: $ID"
                 ;;
             *)
-                log "[!] Unsupported distro: $ID. This script only supports Arch Linux and Arch Linux based distros."
+                log_error "[!] Unsupported distro: $ID. Only supports Arch Linux and derivatives."
                 exit 2
                 ;;
         esac
     else
-        log "[!] Could not detect OS. Aborting."
+        log_error "[!] Could not detect OS. Aborting."
         exit 2
     fi
 }
@@ -80,34 +136,54 @@ check_dependencies() {
         fi
     done
     if (( ${#missing[@]} )); then
-        log "[!] Missing dependencies: ${missing[*]}"
+        log_error "[!] Missing dependencies: ${missing[*]}"
         exit 3
     fi
 }
 
 backup_config() {
     if [[ -d "$CONFIG_TARGET" ]]; then
-        log "[+] Backing up existing .config to $BACKUP_DIR"
+        log_info "[+] Backing up existing .config to $BACKUP_DIR"
         if (( DRYRUN )); then
-            log "[DRY-RUN] Would backup $CONFIG_TARGET to $BACKUP_DIR"
+            DRYRUN_SUMMARY+=("Would backup $CONFIG_TARGET to $BACKUP_DIR")
         else
             cp -r "$CONFIG_TARGET" "$BACKUP_DIR"
         fi
     fi
 }
 
+restore_backup() {
+    if [[ -z "$RESTORE" ]]; then
+        log_error "[!] No backup directory provided for restore."
+        exit 1
+    fi
+    if [[ ! -d "$RESTORE" ]]; then
+        log_error "[!] Backup directory $RESTORE does not exist."
+        exit 1
+    fi
+    log_info "[+] Restoring config from $RESTORE to $CONFIG_TARGET"
+    if (( DRYRUN )); then
+        DRYRUN_SUMMARY+=("Would restore config from $RESTORE to $CONFIG_TARGET")
+    else
+        rm -rf "$CONFIG_TARGET"
+        cp -r "$RESTORE" "$CONFIG_TARGET"
+        log_success "[+] Restore complete."
+    fi
+    exit 0
+}
+
 remove_clone_dir() {
     if [[ -d "$CLONE_DIR" ]]; then
         if (( FORCE )) || (( UNATTENDED )); then
-            log "[+] Removing existing $CLONE_DIR (--force or --unattended)."
-            (( DRYRUN )) || rm -rf "$CLONE_DIR"
+            log_info "[+] Removing existing $CLONE_DIR (--force or --unattended)."
+            (( DRYRUN )) && DRYRUN_SUMMARY+=("Would remove $CLONE_DIR") || rm -rf "$CLONE_DIR"
         else
-            read -p "[?] $CLONE_DIR already exists. Remove and reclone it? [y/N]: " REPLY
+            read -p "[?] $CLONE_DIR exists. Remove and reclone? [y/N]: " REPLY
             if [[ $REPLY =~ ^[Yy]$ ]]; then
-                log "[+] Removing existing $CLONE_DIR."
-                (( DRYRUN )) || rm -rf "$CLONE_DIR"
+                log_info "[+] Removing existing $CLONE_DIR."
+                (( DRYRUN )) && DRYRUN_SUMMARY+=("Would remove $CLONE_DIR") || rm -rf "$CLONE_DIR"
             else
-                log "[!] Aborting due to existing directory."
+                log_error "[!] Aborting due to existing directory."
                 exit 4
             fi
         fi
@@ -115,48 +191,62 @@ remove_clone_dir() {
 }
 
 clone_repo() {
-    log "[+] Cloning your GitHub repo..."
+    log_info "[+] Cloning repo..."
     if (( DRYRUN )); then
-        log "[DRY-RUN] Would run: git clone \"$REPO_URL\" \"$CLONE_DIR\""
+        DRYRUN_SUMMARY+=("Would run: git clone \"$REPO_URL\" \"$CLONE_DIR\"")
     else
         git clone "$REPO_URL" "$CLONE_DIR"
     fi
 }
 
 install_packages() {
-    log "[+] Installing packages with pacman..."
+    log_info "[+] Installing packages with pacman..."
     if (( DRYRUN )); then
-        log "[DRY-RUN] Would run: pacman -S --needed --noconfirm ${PACKAGES[*]}"
+        DRYRUN_SUMMARY+=("Would run: pacman -S --needed --noconfirm ${PACKAGES[*]}")
     else
-        ${SUDO} pacman -S --needed --noconfirm "${PACKAGES[@]}" || log "[!] pacman package installation failed."
+        $SUDO pacman -S --needed --noconfirm "${PACKAGES[@]}" || log_error "[!] pacman package installation failed."
     fi
 }
 
 install_aur_packages() {
     local aur_helper=""
-    for helper in yay paru trizen; do
+    for helper in yay paru trizen aura; do
         if command -v "$helper" &>/dev/null; then
             aur_helper="$helper"
             break
         fi
     done
-
     if [[ -n "$aur_helper" ]]; then
-        log "[+] Installing AUR packages with $aur_helper..."
+        log_info "[+] Installing AUR packages with $aur_helper..."
         if (( DRYRUN )); then
-            log "[DRY-RUN] Would run: $aur_helper -S --noconfirm ${AUR_PACKAGES[*]}"
+            DRYRUN_SUMMARY+=("Would run: $aur_helper -S --noconfirm ${AUR_PACKAGES[*]}")
         else
-            "$aur_helper" -S --noconfirm "${AUR_PACKAGES[@]}" || log "[!] $aur_helper AUR package installation failed."
+            "$aur_helper" -S --noconfirm "${AUR_PACKAGES[@]}" || log_error "[!] $aur_helper AUR package installation failed."
         fi
     else
-        log "[!] No AUR helper found. Skipping AUR package installation."
+        log_error "[!] No AUR helper found. Skipping AUR package installation."
+    fi
+}
+
+merge_or_diff_dotfiles() {
+    if [[ -d "$CONFIG_TARGET" ]]; then
+        log_info "[+] Existing config found. Would you like to merge/diff configs before overwrite?"
+        if (( DRYRUN )); then
+            DRYRUN_SUMMARY+=("Would compare and optionally merge $CONFIG_SOURCE with $CONFIG_TARGET")
+        else
+            read -p "[?] Merge/diff configs with meld? [y/N]: " REPLY
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                meld "$CONFIG_TARGET" "$CONFIG_SOURCE"
+                log_info "[+] Review complete. Proceeding with overwrite."
+            fi
+        fi
     fi
 }
 
 copy_dotfiles() {
-    log "[+] Copying dotfiles to ~/.config..."
+    log_info "[+] Copying dotfiles to ~/.config..."
     if (( DRYRUN )); then
-        log "[DRY-RUN] Would run: rsync -avh --exclude='.git' \"$CONFIG_SOURCE/\" \"$CONFIG_TARGET/\""
+        DRYRUN_SUMMARY+=("Would run: rsync -avh --exclude='.git' \"$CONFIG_SOURCE/\" \"$CONFIG_TARGET/\"")
     else
         rsync -avh --exclude='.git' "$CONFIG_SOURCE/" "$CONFIG_TARGET/"
     fi
@@ -165,74 +255,67 @@ copy_dotfiles() {
 setup_wallpaper() {
     mkdir -p "$HOME/.config/backgrounds"
     if [[ -f "$WALLPAPER_SOURCE" ]]; then
-        log "[+] Copying wallpaper to $WALLPAPER_DEST..."
+        log_info "[+] Copying wallpaper to $WALLPAPER_DEST..."
         if (( DRYRUN )); then
-            log "[DRY-RUN] Would run: cp \"$WALLPAPER_SOURCE\" \"$WALLPAPER_DEST\""
+            DRYRUN_SUMMARY+=("Would run: cp \"$WALLPAPER_SOURCE\" \"$WALLPAPER_DEST\"")
         else
             cp "$WALLPAPER_SOURCE" "$WALLPAPER_DEST"
-            log "[✔] Wallpaper installed."
+            log_success "[+] Wallpaper installed."
         fi
     else
-        log "[!] Wallpaper not found at $WALLPAPER_SOURCE. Skipping wallpaper setup."
+        log_error "[!] Wallpaper not found at $WALLPAPER_SOURCE. Skipping wallpaper setup."
     fi
 }
 
 set_login_manager_backgrounds() {
-    log "[+] Setting login manager backgrounds..."
+    log_info "[+] Setting login manager backgrounds..."
     # SDDM
     if command -v sddm &>/dev/null; then
         SDDM_CONF=$(find /usr/share/sddm/themes -name theme.conf 2>/dev/null | head -n 1)
         if [[ -f "$SDDM_CONF" ]]; then
             if (( DRYRUN )); then
-                log "[DRY-RUN] Would set SDDM background in $SDDM_CONF"
+                DRYRUN_SUMMARY+=("Would set SDDM background in $SDDM_CONF")
             else
-                ${SUDO} sed -i "s|^Background=.*|Background=$WALLPAPER_DEST|" "$SDDM_CONF" || \
-                echo "Background=$WALLPAPER_DEST" | ${SUDO} tee -a "$SDDM_CONF"
-                log "[✔] SDDM background set."
+                $SUDO sed -i "s|^Background=.*|Background=$WALLPAPER_DEST|" "$SDDM_CONF" || \
+                echo "Background=$WALLPAPER_DEST" | $SUDO tee -a "$SDDM_CONF"
+                log_success "[+] SDDM background set."
             fi
         else
-            log "[!] SDDM theme.conf not found."
+            log_error "[!] SDDM theme.conf not found."
         fi
     fi
-
     # LightDM (slick-greeter)
     if [[ -f /etc/lightdm/slick-greeter.conf ]]; then
         if (( DRYRUN )); then
-            log "[DRY-RUN] Would set LightDM background in /etc/lightdm/slick-greeter.conf"
+            DRYRUN_SUMMARY+=("Would set LightDM background in /etc/lightdm/slick-greeter.conf")
         else
             if grep -q "^background=" /etc/lightdm/slick-greeter.conf; then
-                ${SUDO} sed -i "s|^background=.*|background=$WALLPAPER_DEST|" /etc/lightdm/slick-greeter.conf
+                $SUDO sed -i "s|^background=.*|background=$WALLPAPER_DEST|" /etc/lightdm/slick-greeter.conf
             else
-                echo "background=$WALLPAPER_DEST" | ${SUDO} tee -a /etc/lightdm/slick-greeter.conf
+                echo "background=$WALLPAPER_DEST" | $SUDO tee -a /etc/lightdm/slick-greeter.conf
             fi
-            log "[✔] LightDM background set."
+            log_success "[+] LightDM background set."
         fi
     fi
 }
 
 enable_lingering() {
-    if [[ $(id -u) -ne 0 ]]; then
-        SUDO="sudo"
-    else
-        SUDO=""
-    fi
-
-    if ${SUDO} loginctl show-user "$USER" --property=Linger &>/dev/null; then
-        log "[+] Enabling lingering for $USER..."
+    if $SUDO loginctl show-user "$USER" --property=Linger &>/dev/null; then
+        log_info "[+] Enabling lingering for $USER..."
         if (( DRYRUN )); then
-            log "[DRY-RUN] Would run: ${SUDO} loginctl enable-linger \"$USER\""
+            DRYRUN_SUMMARY+=("Would run: $SUDO loginctl enable-linger \"$USER\"")
         else
-            ${SUDO} loginctl enable-linger "$USER"
+            $SUDO loginctl enable-linger "$USER"
         fi
     else
-        log "[!] loginctl not available or insufficient permissions. Skipping lingering enable."
+        log_error "[!] loginctl not available or insufficient permissions. Skipping lingering enable."
     fi
 }
 
 reload_user_services() {
-    log "[+] Reloading user systemd services..."
+    log_info "[+] Reloading user systemd services..."
     if (( DRYRUN )); then
-        log "[DRY-RUN] Would run: systemctl --user daemon-reload"
+        DRYRUN_SUMMARY+=("Would run: systemctl --user daemon-reload")
     else
         systemctl --user daemon-reload
     fi
@@ -240,13 +323,60 @@ reload_user_services() {
 
 check_in_clone_dir() {
     if [[ "$PWD" == "$CLONE_DIR"* ]]; then
-        log "[!] You are currently in the directory you're about to delete. Moving to home directory."
+        log_error "[!] You are currently in the directory you're about to delete. Moving to home directory."
         if (( DRYRUN )); then
-            log "[DRY-RUN] Would run: cd ~"
+            DRYRUN_SUMMARY+=("Would run: cd ~")
         else
             cd ~
         fi
     fi
+}
+
+post_install_checks() {
+    log_info "[+] Running post-install checks..."
+    for pkg in "${PACKAGES[@]}"; do
+        pacman -Q "$pkg" &>/dev/null && log_success "Package $pkg installed." || log_error "Package $pkg NOT installed!"
+    done
+    [[ -d "$CONFIG_TARGET" ]] && log_success "$CONFIG_TARGET exists." || log_error "$CONFIG_TARGET missing!"
+    [[ -f "$WALLPAPER_DEST" ]] && log_success "Wallpaper at $WALLPAPER_DEST." || log_error "Wallpaper missing!"
+}
+
+dryrun_summary() {
+    if (( DRYRUN )); then
+        echo -e "${BLUE}\nDry-Run Summary:${NC}"
+        for action in "${DRYRUN_SUMMARY[@]}"; do
+            echo -e "${YELLOW}- $action${NC}"
+        done
+        echo -e "${BLUE}End of dry-run summary.${NC}"
+    fi
+}
+
+uninstall() {
+    log_info "[+] Uninstalling Niri70S setup..."
+    if (( DRYRUN )); then
+        DRYRUN_SUMMARY+=("Would uninstall Niri70S, restore backup, remove all installed packages and dotfiles")
+    else
+        # Remove dotfiles
+        rm -rf "$CONFIG_TARGET"
+        # Restore backup if exists
+        local latest_backup
+        latest_backup=$(ls -td "$HOME"/.config_backup_* 2>/dev/null | head -n 1)
+        if [[ -n "$latest_backup" ]]; then
+            cp -r "$latest_backup" "$CONFIG_TARGET"
+            log_success "[+] Restored original config from $latest_backup"
+        fi
+        # Remove packages
+        $SUDO pacman -Rs --noconfirm "${PACKAGES[@]}"
+        # Remove AUR packages
+        for aur_pkg in "${AUR_PACKAGES[@]}"; do
+            $SUDO pacman -Rs --noconfirm "$aur_pkg"
+        done
+        # Remove wallpaper
+        rm -f "$WALLPAPER_DEST"
+        log_success "[+] Uninstall complete."
+    fi
+    dryrun_summary
+    exit 0
 }
 
 # --- Parse options ---
@@ -264,23 +394,40 @@ while [[ $# -gt 0 ]]; do
             UNATTENDED=1
             shift
             ;;
+        --restore)
+            RESTORE="$2"
+            shift 2
+            ;;
+        --uninstall)
+            UNINSTALL=1
+            shift
+            ;;
         *)
             usage
             ;;
     esac
 done
 
-# --- Main Workflow ---
 main() {
+    handle_sudo
     detect_distro
     check_dependencies
+
+    if (( UNINSTALL )); then
+        uninstall
+    fi
+
+    if [[ -n "$RESTORE" ]]; then
+        restore_backup
+    fi
+
+    check_for_update
     enable_lingering
     reload_user_services
 
-    # Remove leftover clone if it's corrupted or broken
     if [[ -d "$CLONE_DIR" && ! -d "$CLONE_DIR/.git" ]]; then
-        log "[!] $CLONE_DIR exists but is not a valid git repo. Removing it."
-        (( DRYRUN )) || rm -rf "$CLONE_DIR"
+        log_error "[!] $CLONE_DIR exists but is not a valid git repo. Removing it."
+        (( DRYRUN )) && DRYRUN_SUMMARY+=("Would remove invalid $CLONE_DIR") || rm -rf "$CLONE_DIR"
     fi
 
     check_in_clone_dir
@@ -289,14 +436,16 @@ main() {
     install_packages
     install_aur_packages
     backup_config
+    merge_or_diff_dotfiles
     copy_dotfiles
     setup_wallpaper
     set_login_manager_backgrounds
+    post_install_checks
+    dryrun_summary
 
-    log -e "\n All done! Niri70S setup is complete you now have a fresh Niri installation with its dotfiles and a beautiful wallpaper. Enjoy your new sleek system! \n"
+    log_success "\nAll done! Niri70S setup is complete, you now have a fresh Niri installation with its dotfiles and a beautiful wallpaper. Enjoy your new sleek system!\n"
 }
 
 main
 
-# --- Remove trap on successful exit ---
 trap - EXIT
