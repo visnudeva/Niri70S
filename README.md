@@ -16,6 +16,7 @@ The main keybindings are:
     - Mod+M thunar (file manager)
     - Mod+L swaylock (lock)
     - Mod+E tofi (logout)
+    - Mod+W waybar ( dhow/hide)
 
 
 **Here are some screenshots**
