@@ -11,12 +11,12 @@ The main keybindings are:
      
     - Mod+T kitty (terminal)
     - Mod+I geany (IDE)
-    - Mod+SPACE fuzzel (launcher)
-    - Mod+B firefox (browser)
+    - Mod+SPACE fuzzel (applauncher)
+    - Mod+B firefox (web browser)
     - Mod+M thunar (file manager)
     - Mod+L swaylock (lock)
-    - Mod+E fuzzel (logout)
-    - Mod+W waybar ( dhow/hide)
+    - Mod+E fuzzel (logout menu)
+    - Mod+W waybar (show/hide)
 
 
 **Here are some screenshots**
