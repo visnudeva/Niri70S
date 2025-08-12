@@ -10,7 +10,6 @@ CONFIG_TARGET="$HOME/.config"
 WALLPAPER_NAME="LavaLampOne.png"
 WALLPAPER_SOURCE="$CLONE_DIR/backgrounds/$WALLPAPER_NAME"
 WALLPAPER_DEST="$HOME/.config/backgrounds/$WALLPAPER_NAME"
-TMP_DIR=$(mktemp -d)
 
 # Packages to install via pacman
 PACKAGES=(
@@ -26,7 +25,7 @@ PACKAGES=(
 )
 
 # AUR packages (requires yay)
-AUR_PACKAGES=(tofi ttf-nerd-fonts-symbols)
+AUR_PACKAGES=(ttf-nerd-fonts-symbols)
 
 # Enable lingering for persistent user services
 loginctl enable-linger "$USER"
@@ -61,7 +60,7 @@ git clone "$REPO_URL" "$CLONE_DIR"
 
 # --- Install necessary packages ---
 echo "[+] Installing packages with pacman..."
-sudo pacman -Syu --noconfirm "${PACKAGES[@]}"
+sudo pacman -S --needed --noconfirm "${PACKAGES[@]}"
 
 # --- Install AUR packages if yay is available ---
 if command -v yay &>/dev/null; then
