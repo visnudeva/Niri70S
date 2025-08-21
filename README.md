@@ -13,7 +13,7 @@ The main keybindings are:
     - Mod+I geany (IDE)
     - Mod+SPACE fuzzel (app launcher)
     - Mod+B firefox (web browser)
-    - Mod+M thunar (file manager)
+    - Mod+N nautilus (file manager)
     - Mod+L swaylock (lock)
     - Mod+E fuzzel (logout menu)
     - Mod+W waybar (show/hide)
