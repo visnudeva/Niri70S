@@ -286,7 +286,7 @@ screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 // screenshot-path null
 
 cursor {
-    xcursor-theme "Qogir-Dark"
+    xcursor-theme "capitaine-cursors-light"
     xcursor-size 24
 }
 
