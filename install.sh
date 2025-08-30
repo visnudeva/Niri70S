@@ -34,6 +34,11 @@ WALLPAPER_NAME="LavaLampOne.png"
 WALLPAPER_SOURCE="${CLONE_DIR}/backgrounds/${WALLPAPER_NAME}"
 WALLPAPER_DEST="${HOME}/.config/backgrounds/${WALLPAPER_NAME}"
 BACKUP_DIR="${HOME}/.config_backup_$(date +%Y%m%d_%H%M%S)"
+# SDDM theme and config paths
+SDDM_THEME_SOURCE="${CLONE_DIR}/sddm/Niri70S"
+SDDM_THEME_DEST="/usr/share/sddm/themes/Niri70S"
+SDDM_CONF_SOURCE="${CLONE_DIR}/sddm/sddm.conf"
+SDDM_CONF_DEST="/etc/sddm.conf"
 DRYRUN=0
 FORCE=0
 UNATTENDED=0
@@ -55,6 +60,7 @@ PACKAGES=(
 )
 AUR_PACKAGES=(
     ttf-nerd-fonts-symbols
+    catppuccin-gtk-theme-mocha
 )
 REQUIRED_CMDS=(git rsync pacman diff meld)
 
@@ -311,54 +317,32 @@ setup_wallpaper() {
     fi
 }
 
-set_login_manager_backgrounds() {
-    log_info "[+] Setting login manager backgrounds..."
-    
-    # SDDM - Modified to target /etc/sddm.conf directly, which is more reliable.
+setup_sddm() {
+    log_info "[+] Setting up SDDM theme and configuration..."
     if command -v sddm &>/dev/null; then
-        local sddm_conf="/etc/sddm.conf"
-        if [[ -f "$sddm_conf" ]]; then
-            log_info "[+] Modifying SDDM configuration at $sddm_conf"
-            if (( DRYRUN )); then
-                DRYRUN_SUMMARY+=("Would set SDDM theme and background in $sddm_conf")
-            else
-                if ! grep -q "^\\[Theme\\]" "$sddm_conf"; then
-                    echo -e "\n[Theme]" | $SUDO tee -a "$sddm_conf"
-                fi
-
-                # Set the Background
-                if grep -q "^Background=" "$sddm_conf"; then
-                    $SUDO sed -i "s|^Background=.*|Background=$WALLPAPER_DEST|" "$sddm_conf"
-                else
-                    $SUDO sed -i "/^\\[Theme\\]/a Background=$WALLPAPER_DEST" "$sddm_conf"
-                fi
-                
-                # Set the Current theme
-                if grep -q "^Current=" "$sddm_conf"; then
-                    $SUDO sed -i "s|^Current=.*|Current=simple_sddm_2|" "$sddm_conf"
-                else
-                    $SUDO sed -i "/^\\[Theme\\]/a Current=simple_sddm_2" "$sddm_conf"
-                fi
-
-                log_success "[+] SDDM theme and background set."
-            fi
-        else
-            log_error "[!] SDDM configuration file not found at $sddm_conf."
-        fi
-    fi
-
-    # LightDM (slick-greeter)
-    if [[ -f /etc/lightdm/slick-greeter.conf ]]; then
         if (( DRYRUN )); then
-            DRYRUN_SUMMARY+=("Would set LightDM background in /etc/lightdm/slick-greeter.conf")
+            DRYRUN_SUMMARY+=("Would run: sudo cp -r \"$SDDM_THEME_SOURCE\" \"$SDDM_THEME_DEST\"")
+            DRYRUN_SUMMARY+=("Would run: sudo cp \"$SDDM_CONF_SOURCE\" \"$SDDM_CONF_DEST\"")
         else
-            if grep -q "^background=" /etc/lightdm/slick-greeter.conf; then
-                $SUDO sed -i "s|^background=.*|background=$WALLPAPER_DEST|" /etc/lightdm/slick-greeter.conf
-            else
-                echo "background=$WALLPAPER_DEST" | $SUDO tee -a /etc/lightdm/slick-greeter.conf
+            if [[ ! -d "$SDDM_THEME_SOURCE" ]]; then
+                log_error "[!] SDDM theme source directory not found at $SDDM_THEME_SOURCE. Aborting SDDM setup."
+                return 1
             fi
-            log_success "[+] LightDM background set."
+            if [[ ! -f "$SDDM_CONF_SOURCE" ]]; then
+                log_error "[!] SDDM config file not found at $SDDM_CONF_SOURCE. Aborting SDDM setup."
+                return 1
+            fi
+
+            # Copy the theme folder
+            $SUDO cp -r "$SDDM_THEME_SOURCE" "$SDDM_THEME_DEST"
+            log_success "[+] SDDM theme copied to $SDDM_THEME_DEST."
+            
+            # Copy the sddm.conf file
+            $SUDO cp "$SDDM_CONF_SOURCE" "$SDDM_CONF_DEST"
+            log_success "[+] SDDM config copied to $SDDM_CONF_DEST."
         fi
+    else
+        log_error "[!] SDDM not detected. Skipping SDDM theme and config setup."
     fi
 }
 
@@ -504,7 +488,7 @@ main() {
     copy_dotfiles
     setup_theming
     setup_wallpaper
-    set_login_manager_backgrounds
+    setup_sddm
     post_install_checks
     dryrun_summary
 
