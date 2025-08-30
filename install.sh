@@ -314,21 +314,40 @@ setup_wallpaper() {
 
 set_login_manager_backgrounds() {
     log_info "[+] Setting login manager backgrounds..."
-    # SDDM
+    
+    # SDDM - Modified to target /etc/sddm.conf directly, which is more reliable.
     if command -v sddm &>/dev/null; then
-        SDDM_CONF=$(find /usr/share/sddm/themes -name theme.conf 2>/dev/null | head -n 1)
-        if [[ -f "$SDDM_CONF" ]]; then
+        local sddm_conf="/etc/sddm.conf"
+        if [[ -f "$sddm_conf" ]]; then
+            log_info "[+] Modifying SDDM configuration at $sddm_conf"
             if (( DRYRUN )); then
-                DRYRUN_SUMMARY+=("Would set SDDM background in $SDDM_CONF")
+                DRYRUN_SUMMARY+=("Would set SDDM theme and background in $sddm_conf")
             else
-                $SUDO sed -i "s|^Background=.*|Background=$WALLPAPER_DEST|" "$SDDM_CONF" || \
-                echo "Background=$WALLPAPER_DEST" | $SUDO tee -a "$SDDM_CONF"
-                log_success "[+] SDDM background set."
+                if ! grep -q "^\\[Theme\\]" "$sddm_conf"; then
+                    echo -e "\n[Theme]" | $SUDO tee -a "$sddm_conf"
+                fi
+
+                # Set the Background
+                if grep -q "^Background=" "$sddm_conf"; then
+                    $SUDO sed -i "s|^Background=.*|Background=$WALLPAPER_DEST|" "$sddm_conf"
+                else
+                    $SUDO sed -i "/^\\[Theme\\]/a Background=$WALLPAPER_DEST" "$sddm_conf"
+                fi
+                
+                # Set the Current theme
+                if grep -q "^Current=" "$sddm_conf"; then
+                    $SUDO sed -i "s|^Current=.*|Current=simple_sddm_2|" "$sddm_conf"
+                else
+                    $SUDO sed -i "/^\\[Theme\\]/a Current=simple_sddm_2" "$sddm_conf"
+                fi
+
+                log_success "[+] SDDM theme and background set."
             fi
         else
-            log_error "[!] SDDM theme.conf not found."
+            log_error "[!] SDDM configuration file not found at $sddm_conf."
         fi
     fi
+
     # LightDM (slick-greeter)
     if [[ -f /etc/lightdm/slick-greeter.conf ]]; then
         if (( DRYRUN )); then
