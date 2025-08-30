@@ -210,15 +210,15 @@ install_packages() {
         DRYRUN_SUMMARY+=("Would run: pacman -Syu --needed --noconfirm ${PACKAGES[*]}")
     else
         # Force a database sync and update before installing
-        $SUDO pacman -Syu --needed --noconfirm "${PACKAGES[@]}" || log_error "[!] pacman package installation failed."
+        $SUDO pacman -Syu --noconfirm || log_error "[!] pacman update failed."
 
-        # Check if each package was successfully installed
-        log_info "[+] Verifying package installation..."
+        # Install each package individually for better error reporting
         for pkg in "${PACKAGES[@]}"; do
-            if pacman -Q "$pkg" &>/dev/null; then
-                log_success "[+] Package '$pkg' installed successfully."
+            log_info "-> Attempting to install $pkg..."
+            if $SUDO pacman -S --needed --noconfirm "$pkg"; then
+                log_success "  [+] Package '$pkg' installed successfully."
             else
-                log_error "[!] Package '$pkg' failed to install."
+                log_error "  [!] Package '$pkg' failed to install."
             fi
         done
     fi
