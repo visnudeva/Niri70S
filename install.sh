@@ -43,10 +43,10 @@ SUDO=""
 
 PACKAGES=(
     niri kitty waybar mako swaybg swayidle swaylock-effects swww
-    nautilus geany sddm acpi libnotify
+    nautilus geany sddm acpi libnotify capitaine-cursors
     networkmanager network-manager-applet nm-connection-editor
     blueman bluez bluez-utils nwg-look polkit-gnome
-    kvantum kvantum-qt5 qt5-wayland qt6-wayland qt5ct qt6ct
+    kvantum kvantum-qt5 qt5-wayland qt6-wayland
     brightnessctl wl-clipboard grim slurp gvfs
     xdg-desktop-portal-hyprland yay satty udiskie sddm
     pipewire pipewire-alsa pipewire-audio pipewire-jack pipewire-pulse
