@@ -42,13 +42,13 @@ UNINSTALL=0
 SUDO=""
 
 PACKAGES=(
-    niri kitty waybar mako swaybg swayidle swaylock-effects swww 
+    niri kitty waybar mako swaybg swayidle swaylock-effects swww
     nautilus geany sddm acpi libnotify
     networkmanager network-manager-applet nm-connection-editor
-    blueman bluez bluez-utils nwg-look polkit-gnome 
+    blueman bluez bluez-utils nwg-look polkit-gnome
     kvantum kvantum-qt5 qt5-wayland qt6-wayland qt5ct qt6ct
-    brightnessctl wl-clipboard grim slurp gvfs 
-    xdg-desktop-portal-hyprland yay satty udiskie sddm 
+    brightnessctl wl-clipboard grim slurp gvfs
+    xdg-desktop-portal-hyprland yay satty udiskie sddm
     pipewire pipewire-alsa pipewire-audio pipewire-jack pipewire-pulse
     wireplumber pamixer pavucontrol
 )
@@ -258,8 +258,10 @@ copy_dotfiles() {
     log_info "[+] Copying dotfiles to ~/.config..."
     if (( DRYRUN )); then
         DRYRUN_SUMMARY+=("Would run: rsync -avh --exclude='.git' \"$CONFIG_SOURCE/\" \"$CONFIG_TARGET/\"")
+        DRYRUN_SUMMARY+=("Would run: chmod +x \"$CONFIG_TARGET/fuzzel/fuzzel-logout.sh\"")
     else
         rsync -avh --exclude='.git' "$CONFIG_SOURCE/" "$CONFIG_TARGET/"
+        chmod +x "$CONFIG_TARGET/fuzzel/fuzzel-logout.sh"
     fi
 }
 
