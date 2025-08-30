@@ -46,7 +46,7 @@ PACKAGES=(
     nautilus geany sddm acpi libnotify capitaine-cursors
     networkmanager network-manager-applet nm-connection-editor
     blueman bluez bluez-utils nwg-look polkit-gnome
-    kvantum kvantum-qt5 qt5-wayland qt6-wayland
+    kvantum kvantum-qt5 qt6-wayland qt6ct
     brightnessctl wl-clipboard gvfs popsicle
     xdg-desktop-portal-hyprland yay satty udiskie
     pipewire pipewire-alsa pipewire-audio pipewire-jack pipewire-pulse
