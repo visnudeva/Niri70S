@@ -202,9 +202,20 @@ clone_repo() {
 install_packages() {
     log_info "[+] Installing packages with pacman..."
     if (( DRYRUN )); then
-        DRYRUN_SUMMARY+=("Would run: pacman -S --needed --noconfirm ${PACKAGES[*]}")
+        DRYRUN_SUMMARY+=("Would run: pacman -Syu --needed --noconfirm ${PACKAGES[*]}")
     else
-        $SUDO pacman -S --needed --noconfirm "${PACKAGES[@]}" || log_error "[!] pacman package installation failed."
+        # Force a database sync and update before installing
+        $SUDO pacman -Syu --needed --noconfirm "${PACKAGES[@]}" || log_error "[!] pacman package installation failed."
+
+        # Check if each package was successfully installed
+        log_info "[+] Verifying package installation..."
+        for pkg in "${PACKAGES[@]}"; do
+            if pacman -Q "$pkg" &>/dev/null; then
+                log_success "[+] Package '$pkg' installed successfully."
+            else
+                log_error "[!] Package '$pkg' failed to install."
+            fi
+        done
     fi
 }
 
