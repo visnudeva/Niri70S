@@ -54,7 +54,10 @@ PACKAGES=(
     wireplumber pamixer pavucontrol
     tela-circle-icon-theme-dracula capitaine-cursors
 )
-AUR_PACKAGES=(ttf-nerd-fonts-symbols)
+AUR_PACKAGES=(
+    ttf-nerd-fonts-symbols
+    catppuccin-gtk-theme-mocha
+)
 REQUIRED_CMDS=(git rsync pacman diff meld)
 
 DRYRUN_SUMMARY=()
