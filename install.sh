@@ -42,13 +42,13 @@ UNINSTALL=0
 SUDO=""
 
 PACKAGES=(
-    niri kitty waybar mako swaybg swayidle swaylock-effects swww
+    niri kitty waybar mako swaybg swayidle swaylock-effects
     nautilus geany sddm acpi libnotify capitaine-cursors
     networkmanager network-manager-applet nm-connection-editor
     blueman bluez bluez-utils nwg-look polkit-gnome
     kvantum kvantum-qt5 qt5-wayland qt6-wayland
-    brightnessctl wl-clipboard grim slurp gvfs
-    xdg-desktop-portal-hyprland yay satty udiskie sddm
+    brightnessctl wl-clipboard gvfs popsicle
+    xdg-desktop-portal-hyprland yay satty udiskie
     pipewire pipewire-alsa pipewire-audio pipewire-jack pipewire-pulse
     wireplumber pamixer pavucontrol
 )
