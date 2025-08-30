@@ -114,7 +114,7 @@ detect_distro() {
     if [[ -f /etc/os-release ]]; then
         . /etc/os-release
         case "$ID" in
-            arch|manjaro)
+            arch|manjaro|cachyos)
                 log_info "[+] Running on supported distro: $ID"
                 ;;
             *)
