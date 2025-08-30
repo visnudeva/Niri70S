@@ -1,4 +1,3 @@
-:install.sh:install.sh
 #!/bin/bash
 
 set -e
@@ -146,6 +145,15 @@ check_dependencies() {
     fi
 }
 
+update_system() {
+    log_info "[+] Updating Arch Linux system..."
+    if (( DRYRUN )); then
+        DRYRUN_SUMMARY+=("Would run: $SUDO pacman -Syu --noconfirm")
+    else
+        $SUDO pacman -Syu --noconfirm || log_error "[!] System update failed."
+    fi
+}
+
 backup_config() {
     if [[ -d "$CONFIG_TARGET" ]]; then
         log_info "[+] Backing up existing .config to $BACKUP_DIR"
@@ -210,15 +218,15 @@ install_packages() {
         DRYRUN_SUMMARY+=("Would run: pacman -Syu --needed --noconfirm ${PACKAGES[*]}")
     else
         # Force a database sync and update before installing
-        $SUDO pacman -Syu --noconfirm || log_error "[!] pacman update failed."
+        $SUDO pacman -Syu --needed --noconfirm "${PACKAGES[@]}" || log_error "[!] pacman package installation failed."
 
-        # Install each package individually for better error reporting
+        # Check if each package was successfully installed
+        log_info "[+] Verifying package installation..."
         for pkg in "${PACKAGES[@]}"; do
-            log_info "-> Attempting to install $pkg..."
-            if $SUDO pacman -S --needed --noconfirm "$pkg"; then
-                log_success "  [+] Package '$pkg' installed successfully."
+            if pacman -Q "$pkg" &>/dev/null; then
+                log_success "[+] Package '$pkg' installed successfully."
             else
-                log_error "  [!] Package '$pkg' failed to install."
+                log_error "[!] Package '$pkg' failed to install."
             fi
         done
     fi
@@ -449,6 +457,7 @@ main() {
     handle_sudo
     detect_distro
     check_dependencies
+    update_system
 
     if (( UNINSTALL )); then
         uninstall
