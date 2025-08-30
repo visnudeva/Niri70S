@@ -55,7 +55,6 @@ PACKAGES=(
 )
 AUR_PACKAGES=(
     ttf-nerd-fonts-symbols
-    catppuccin-gtk-theme-mocha
 )
 REQUIRED_CMDS=(git rsync pacman diff meld)
 
