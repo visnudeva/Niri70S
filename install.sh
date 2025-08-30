@@ -1,3 +1,4 @@
+:install.sh:install.sh
 #!/bin/bash
 
 set -e
@@ -43,7 +44,7 @@ SUDO=""
 
 PACKAGES=(
     niri kitty waybar mako swaybg swayidle swaylock-effects
-    nautilus geany sddm acpi libnotify capitaine-cursors
+    nautilus geany sddm acpi libnotify 
     networkmanager network-manager-applet nm-connection-editor
     blueman bluez bluez-utils nwg-look polkit-gnome
     kvantum kvantum-qt5 qt6-wayland qt6ct
@@ -51,6 +52,7 @@ PACKAGES=(
     xdg-desktop-portal-hyprland yay satty udiskie
     pipewire pipewire-alsa pipewire-audio pipewire-jack pipewire-pulse
     wireplumber pamixer pavucontrol
+    tela-circle-icon-theme-dracula capitaine-cursors
 )
 AUR_PACKAGES=(ttf-nerd-fonts-symbols)
 REQUIRED_CMDS=(git rsync pacman diff meld)
@@ -265,6 +267,25 @@ copy_dotfiles() {
     fi
 }
 
+setup_theming() {
+    log_info "[+] Applying themes and icons..."
+    if (( DRYRUN )); then
+        DRYRUN_SUMMARY+=("Would apply Catppuccin-Mocha theme via nwg-look")
+        DRYRUN_SUMMARY+=("Would apply Tela-circle-dracula icon theme via qt6ct")
+    else
+        # Set GTK theme using nwg-look
+        gsettings set org.gnome.desktop.interface gtk-theme "Catppuccin-Mocha-Standard-Pink-Dark"
+        gsettings set org.gnome.desktop.interface icon-theme "Tela-circle-dracula"
+        log_success "[+] Applied GTK theme and icon theme via nwg-look."
+
+        # Set Qt theme via qt6ct
+        mkdir -p "$HOME/.config/qt6ct"
+        echo -e "[Qt]\nstyle=kvantum" > "$HOME/.config/qt6ct/qt6ct.conf"
+        echo -e "[Icons]\ntheme=Tela-circle-dracula" >> "$HOME/.config/qt6ct/qt6ct.conf"
+        log_success "[+] Applied Qt theme and icons via qt6ct."
+    fi
+}
+
 setup_wallpaper() {
     mkdir -p "$HOME/.config/backgrounds"
     if [[ -f "$WALLPAPER_SOURCE" ]]; then
@@ -451,6 +472,7 @@ main() {
     backup_config
     merge_or_diff_dotfiles
     copy_dotfiles
+    setup_theming
     setup_wallpaper
     set_login_manager_backgrounds
     post_install_checks
