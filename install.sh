@@ -51,7 +51,7 @@ PACKAGES=(
     nautilus geany sddm acpi libnotify 
     networkmanager network-manager-applet nm-connection-editor
     blueman bluez bluez-utils nwg-look polkit-gnome
-    kvantum kvantum-qt5 qt6-wayland qt6ct
+    kvantum kvantum-qt5 qt6-wayland qt5ct qt6ct
     qt5-graphicaleffects qt6-5compat
     brightnessctl wl-clipboard gvfs popsicle
     xdg-desktop-portal-hyprland yay satty udiskie
@@ -62,6 +62,7 @@ PACKAGES=(
 AUR_PACKAGES=(
     ttf-nerd-fonts-symbols
     catppuccin-gtk-theme-mocha
+    kvantum-theme-catppuccin-git
 )
 REQUIRED_CMDS=(git rsync pacman diff meld)
 
@@ -289,6 +290,7 @@ setup_theming() {
     if (( DRYRUN )); then
         DRYRUN_SUMMARY+=("Would apply Catppuccin-Mocha theme via nwg-look")
         DRYRUN_SUMMARY+=("Would apply Tela-circle-dracula icon theme via qt6ct")
+        DRYRUN_SUMMARY+=("Would apply Catppuccin theme in Kvantum")
     else
         # Set GTK theme using nwg-look
         gsettings set org.gnome.desktop.interface gtk-theme "Catppuccin-Mocha-Standard-Pink-Dark"
@@ -300,6 +302,16 @@ setup_theming() {
         echo -e "[Qt]\nstyle=kvantum" > "$HOME/.config/qt6ct/qt6ct.conf"
         echo -e "[Icons]\ntheme=Tela-circle-dracula" >> "$HOME/.config/qt6ct/qt6ct.conf"
         log_success "[+] Applied Qt theme and icons via qt6ct."
+
+        # Apply Kvantum theme
+        local kvantum_config="$HOME/.config/Kvantum/kvantum.kvconfig"
+        local kvantum_theme="Catppuccin-Mocha"
+        if [[ -f "$kvantum_config" ]]; then
+            sed -i "s/^theme=.*/theme=$kvantum_theme/" "$kvantum_config"
+            log_success "[+] Applied Kvantum theme '$kvantum_theme'."
+        else
+            log_error "[!] Kvantum config file not found at '$kvantum_config'. Skipping Kvantum theme setup."
+        fi
     fi
 }
 
