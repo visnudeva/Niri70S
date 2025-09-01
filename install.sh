@@ -48,7 +48,8 @@ SUDO=""
 
 PACKAGES=(
     niri kitty waybar mako swaybg swayidle swaylock-effects
-    nautilus geany sddm acpi libnotify 
+    thunar thunar-volman thunar-archive-plugin thunar-media-tags-plugin
+    geany sddm acpi libnotify 
     networkmanager network-manager-applet nm-connection-editor
     blueman bluez bluez-utils nwg-look polkit-gnome
     kvantum kvantum-qt5 qt6-wayland qt5ct qt6ct
